@@ -498,6 +498,8 @@ Nmap
 
 <div align="center">
 
+**🖋️ Author:** [@0XSYR77](https://github.com/0XSYR77)
+
 **🎯 Challenge:** Craftfall — Local Lab  
 **⚙️ Difficulty:** Easy
 
